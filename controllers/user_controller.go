@@ -39,6 +39,7 @@ func SignUp(c *gin.Context) {
 		return
 	}
 	result := db.DB().Where("username=?", User.Username).Find(&User)
+	
 	if result.RowsAffected == 1 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Already username %s", User.Username)})
 		return
@@ -52,6 +53,7 @@ func SignUp(c *gin.Context) {
 			return
 		}
 	}
+	
 
 }
 func Login() {

@@ -19,6 +19,7 @@ func DB() *gorm.DB {
 		fmt.Println(err)
 	}
 
+	
 	return db
 
 }
