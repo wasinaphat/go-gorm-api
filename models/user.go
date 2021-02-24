@@ -1,5 +1,7 @@
 package models
 
+import "github.com/go-gorm-api/db"
+
 // type User struct {
 // 	ID       int64  `json:"id"`
 // 	Username string `json:"username"`
@@ -13,7 +15,11 @@ package models
 // }
 
 type User struct {
-	ID uint
+	ID   uint
 	Name string
 	Age  uint8
+}
+
+func init() {
+	db.DB().Migrator().CreateTable(&User{})
 }

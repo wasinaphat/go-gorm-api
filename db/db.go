@@ -2,8 +2,6 @@ package db
 
 import (
 	"fmt"
-	_"time"
-
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
