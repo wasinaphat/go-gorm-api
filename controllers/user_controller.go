@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -21,6 +23,7 @@ func GetUser(c *gin.Context) {
 		return
 	}
 	result := db.DB().Where("id=?", id).Find(&User)
+
 	fmt.Println("result.RowsAffected", result.RowsAffected)
 	if result.RowsAffected == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": fmt.Sprintf("Not found user id %d", id)})
@@ -30,14 +33,26 @@ func GetUser(c *gin.Context) {
 }
 func SignUp(c *gin.Context) {
 	var User models.User
-	id := c.Param("id")
-	// User.Name = "Tig"
-	// User.Age = 31
-	user := User
-	result := db.DB().Create(&user)
-	fmt.Println(result.RowsAffected)
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	if err := json.Unmarshal([]byte(data), &User); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+	result := db.DB().Where("username=?", User.Username).Find(&User)
+	if result.RowsAffected == 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Already username %s", User.Username)})
+		return
+	} else {
+		result := db.DB().Create(&User)
+		if result.RowsAffected == 1 {
+			c.JSON(http.StatusOK, gin.H{"msg": fmt.Sprintf("Sign up is successfully")})
+			return
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Could not sign up")})
+			return
+		}
+	}
 
-	c.JSON(http.StatusOK, gin.H{"id": id, "user": user})
 }
 func Login() {
 
