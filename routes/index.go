@@ -16,9 +16,9 @@ func AppRoute() {
 	v1 := router.Group("/v1")
 	v1.Use(guard.AuthorizeJWT())
 	{
-		v1.GET("/test", func(ctx *gin.Context) {
+		v1.GET("/test", func(c *gin.Context) {
 
-			ctx.JSON(http.StatusOK, gin.H{"message": "success"})
+			c.JSON(http.StatusOK, gin.H{"message": "success"})
 		})
 	}
 	router.Run(":8080")
