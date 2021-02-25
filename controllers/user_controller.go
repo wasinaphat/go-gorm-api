@@ -11,6 +11,7 @@ import (
 	"github.com/go-gorm-api/db"
 	"github.com/go-gorm-api/models"
 	"github.com/go-gorm-api/utils/utils_password"
+	"github.com/go-gorm-api/utils/utils_token"
 	// "gorm.io/driver/mysql"
 	// "gorm.io/gorm"
 )
@@ -62,6 +63,23 @@ func SignUp(c *gin.Context) {
 	}
 
 }
-func Login() {
+func Login(c *gin.Context) {
+	var User models.User
+	var dbUser models.User
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	if err := json.Unmarshal([]byte(data), &User); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+	result := db.DB().Where("username=?", User.Username).Find(&dbUser)
+
+	if result.RowsAffected == 1 && utils_password.CheckPasswordHash(User.Password, dbUser.Password) {
+		token := utils_token.GenerateToken(int(dbUser.ID), dbUser.Username)
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "Login Successfully", "token": token})
+		return
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("In-correct Password")})
+		return
+	}
 
 }
