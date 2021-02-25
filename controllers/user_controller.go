@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-gorm-api/db"
 	"github.com/go-gorm-api/models"
+	"github.com/go-gorm-api/utils/utils_password"
 	// "gorm.io/driver/mysql"
 	// "gorm.io/gorm"
 )
@@ -39,11 +40,17 @@ func SignUp(c *gin.Context) {
 		return
 	}
 	result := db.DB().Where("username=?", User.Username).Find(&User)
-	
+
 	if result.RowsAffected == 1 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Already username %s", User.Username)})
 		return
 	} else {
+		HPassword, err := utils_password.HashPassword(User.Password)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+			return
+		}
+		User.Password = HPassword
 		result := db.DB().Create(&User)
 		if result.RowsAffected == 1 {
 			c.JSON(http.StatusOK, gin.H{"msg": fmt.Sprintf("Sign up is successfully")})
@@ -53,7 +60,6 @@ func SignUp(c *gin.Context) {
 			return
 		}
 	}
-	
 
 }
 func Login() {
